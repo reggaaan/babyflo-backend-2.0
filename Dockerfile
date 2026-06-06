@@ -1,17 +1,17 @@
-# Use the official .NET SDK image to build the app
+# Use the official .NET 10 SDK image to build the app
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy the specific project file and restore dependencies
-COPY BabyfloServer/BabyfloServer.csproj BabyfloServer/
+# Copy the entire repository content
+COPY . .
+
+# Restore dependencies
 RUN dotnet restore "BabyfloServer/BabyfloServer.csproj"
 
-# Copy the rest of the source files and build
-COPY . .
-WORKDIR /src/BabyfloServer
-RUN dotnet publish "BabyfloServer.csproj" -c Release -o /app/publish
+# Build and publish
+RUN dotnet publish "BabyfloServer/BabyfloServer.csproj" -c Release -o /app/publish
 
-# Use the ASP.NET runtime image to run the app
+# Use the .NET 10 runtime image to run the app
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
